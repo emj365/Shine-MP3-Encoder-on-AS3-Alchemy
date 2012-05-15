@@ -6,6 +6,43 @@ compiling the application.
 I have included only the option to include the swc file. There will/might be
 other options that you have to pass to mxmlc.
 
+Shine converts wav to mp3. If you want to convert raw sound data in bytearray
+to mp3, you have to first convert the raw sound to wav and then convert wav to
+mp3.
+http://code.google.com/p/speechapi/source/browse/trunk/src/flash/com/adobe/audio/format/WAVWriter.as
+
+You can read this http://www.adobe.com/devnet/air/flex/articles/using_mic_api.html
+on how to capture raw sound data and on how to convert to wav.
+
+Some sample code to get you started.
+-----------------------------------
+
+import com.adobe.audio.format.WAVWriter;
+import fr.kikko.lab.ShineMP3Encoder;
+
+private var mp3encoder:ShineMP3Encoder;
+private var rawData:ByteArray;
+
+protected function processData():void {
+	var wavData:ByteArray = convertToWAV(); //convertToWAV not defined. You have to do it yourself.
+
+	// 128 is the default bit rate.
+	// Allowed values for bitrate are: 0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224,
+	// 256 and 320
+	mp3encoder = new ShineMP3Encoder(wav, 32); // 32 is the target bitrate
+	mp3encoder.addEventListener(Event.COMPLETE, getMP3);
+	mp3encoder.addEventListener(ProgressEvent.PROGRESS, updateProgress);
+}
+
+protected function updateProgress(event:ProgressEvent):void {
+	trace('% completed = ' + event.bytesLoaded); // or you can show a progress bar.
+}
+
+protected function getMP3(event:Event):void {
+	var mp3Data:ByteArray = mp3encoder.getMP3Data();
+}
+
+
 If you want to delve into the code and do something more:
 ========================================================
 * You have to get the source code by forking or any other means.
