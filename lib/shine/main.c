@@ -39,7 +39,6 @@ static void set_defaults()
     config.mpeg.type = 1;
     config.mpeg.layr = 2;
     config.mpeg.mode = (config.wave.channels==1) ? MODE_MONO :MODE_STEREO;
-    config.mpeg.bitr = 128;
     config.mpeg.psyc = 2;
     config.mpeg.emph = 0; 
     config.mpeg.crc  = 0;
@@ -125,6 +124,14 @@ int closeByteArray(void * cookie)
 	return 0;
 }
 
+static AS3_Val set_bitrate(void * self, AS3_Val args)
+{
+    int t = AS3_IntValue(args);
+    config.mpeg.bitr = t;
+
+	return AS3_Int(0);
+}
+
 static AS3_Val init(void * self, AS3_Val args)
 {
 	void * ref;
@@ -168,12 +175,14 @@ int main(int argc, char **argv)
 	
 	// set convert & update methods visible to flash
 	AS3_Val convertMethod = AS3_Function( NULL, init );
-	AS3_Val updateMethod = AS3_Function( NULL, update );
+	AS3_Val updateMethod  = AS3_Function( NULL, update );
+	AS3_Val bitrateMethod = AS3_Function( NULL, set_bitrate );
 	
-	AS3_Val result = AS3_Object( "init:AS3ValType, update: AS3ValType", convertMethod, updateMethod );
+	AS3_Val result = AS3_Object( "init:AS3ValType, update: AS3ValType, set_bitrate:AS3ValType", convertMethod, updateMethod, bitrateMethod );
 	
 	AS3_Release( convertMethod );
 	AS3_Release( updateMethod );
+	AS3_Release( bitrateMethod );
 	
 	// notify that we initialized -- THIS DOES NOT RETURN!
 	AS3_LibInit( result );

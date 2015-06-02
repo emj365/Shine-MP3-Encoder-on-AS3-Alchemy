@@ -1,0 +1,69 @@
+To use the swc file in your flex application, include the swc file while
+compiling the application.
+
+"mxmlc my_app.mxml -library-path+=/path/to/shineMP3_alchemy.swc"
+
+I have included only the option to include the swc file. There will/might be
+other options that you have to pass to mxmlc.
+
+Shine converts wav to mp3. If you want to convert raw sound data in bytearray
+to mp3, you have to first convert the raw sound to wav and then convert wav to
+mp3.
+http://code.google.com/p/speechapi/source/browse/trunk/src/flash/com/adobe/audio/format/WAVWriter.as
+
+You can read this http://www.adobe.com/devnet/air/flex/articles/using_mic_api.html
+on how to capture raw sound data and on how to convert to wav.
+
+Some sample code to get you started.
+-----------------------------------
+
+import com.adobe.audio.format.WAVWriter;
+import fr.kikko.lab.ShineMP3Encoder;
+
+private var mp3encoder:ShineMP3Encoder;
+private var rawData:ByteArray;
+
+protected function processData():void {
+	var wavData:ByteArray = convertToWAV(); //convertToWAV not defined. You have to do it yourself.
+
+	// 128 is the default bit rate.
+	// Allowed values for bitrate are: 0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224,
+	// 256 and 320
+	mp3encoder = new ShineMP3Encoder(wav, 32); // 32 is the target bitrate
+	mp3encoder.addEventListener(Event.COMPLETE, getMP3);
+	mp3encoder.addEventListener(ProgressEvent.PROGRESS, updateProgress);
+}
+
+protected function updateProgress(event:ProgressEvent):void {
+	trace('% completed = ' + event.bytesLoaded); // or you can show a progress bar.
+}
+
+protected function getMP3(event:Event):void {
+	var mp3Data:ByteArray = mp3encoder.getMP3Data();
+}
+
+
+If you want to delve into the code and do something more:
+========================================================
+* You have to get the source code by forking or any other means.
+* You'll have to download the alchemy toolkit from http://labs.adobe.com/downloads/alchemy.html
+* Follow the instructions to install alchemy on your machine.
+* If you have modified the source code in lib/shine, run "make" in lib/shine
+  directory to generate the /lib/shine/shine.swc file. Then run the build_as3.sh
+  in the project root folder to generate the bin/shineMP3_alchemy.swc
+* If you have modified the actionscript source in 
+  src/fr/kikko/lab/ShineMP3Encoder.as, run the build_as3.sh in the project 
+  root folder to generate the bin/shineMP3_alchemy.swc
+
+NOTES:
+=======================================================
+I'm not a legal expert by any stretch of imagination. You are using this code
+at your own risk. Why is that and why did law come into the equation here?
+
+* MP3 is not a free codec. http://mp3licensing.com/royalty/
+* And this is an LGPL'ed code. If you link the library statically into your
+application, that too will be come under LGPL or GPL(not sure which one, as i
+said earlier, I am not a lawyer).
+
+So, if you use this code and become the next big thing like Google or Facebook,
+and you have lawyers knocking on your door, don't blame me; I have warned you.
